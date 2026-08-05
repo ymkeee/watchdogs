@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Player</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+
+        #startScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 1000;
+            transition: opacity 0.3s ease;
+        }
+
+        #startScreen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #startText {
+            color: white;
+            font-size: 4rem;
+            font-weight: bold;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            animation: pulse 2s infinite;
+            user-select: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.05);
+                opacity: 0.8;
+            }
+        }
+
+        #videoContainer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: black;
+            display: none;
+        }
+
+        #videoContainer.active {
+            display: block;
+        }
+
+        #videoPlayer {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        @media (max-width: 768px) {
+            #startText {
+                font-size: 2.5rem;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="startScreen">
+        <div id="startText">Click to Start Video</div>
+    </div>
+
+    <div id="videoContainer">
+        <video id="videoPlayer" controls>
+            <source src="edit.mp4" type="video/mp4">
+            Ваш браузер не поддерживает видео.
+        </video>
+    </div>
+
+    <script>
+        const startScreen = document.getElementById('startScreen');
+        const videoContainer = document.getElementById('videoContainer');
+        const videoPlayer = document.getElementById('videoPlayer');
+
+        startScreen.addEventListener('click', async () => {
+            // Скрываем стартовый экран
+            startScreen.classList.add('hidden');
+            
+            // Показываем видео
+            videoContainer.classList.add('active');
+            
+            // Небольшая задержка для плавного перехода
+            setTimeout(async () => {
+                try {
+                    // Запускаем видео
+                    await videoPlayer.play();
+                    
+                    // Переходим в полноэкранный режим
+                    if (videoPlayer.requestFullscreen) {
+                        await videoPlayer.requestFullscreen();
+                    } else if (videoPlayer.webkitRequestFullscreen) {
+                        await videoPlayer.webkitRequestFullscreen();
+                    } else if (videoPlayer.msRequestFullscreen) {
+                        await videoPlayer.msRequestFullscreen();
+                    }
+                } catch (error) {
+                    console.log('Не удалось запустить видео или перейти в полноэкранный режим:', error);
+                }
+            }, 300);
+        });
+
+        // Обработка выхода из полноэкранного режима
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+        document.addEventListener('msfullscreenchange', handleFullscreenChange);
+
+        function handleFullscreenChange() {
+            if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
+                // Если вышли из полноэкранного режима, показываем стартовый экран
+                videoPlayer.pause();
+                videoContainer.classList.remove('active');
+                startScreen.classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
