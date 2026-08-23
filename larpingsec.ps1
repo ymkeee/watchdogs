@@ -260,10 +260,9 @@ try {
     $w = [Windows.Markup.XamlReader]::Load($reader)
     $v = $w.FindName("v")
 
-    # Зацикливание видео при завершении
+    # Закрытие окна при завершении видео
     $v.add_MediaEnded({
-        $v.Position = [TimeSpan]::Zero
-        $v.Play()
+        $w.Close()
     })
 
     # Показ окна
